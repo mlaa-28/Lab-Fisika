@@ -1,0 +1,115 @@
+/* --- Pengaturan Dasar Tampilan Website --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc; /* Warna latar belakang halaman (Abu-abu muda) */
+    margin: 0;
+    padding: 20px;
+    color: #1e293b;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* --- Pengaturan Header --- */
+header {
+    text-align: center;
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6); /* Warna Biru Gradient */
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+header p {
+    margin-top: 5px;
+    opacity: 0.9;
+}
+
+/* --- Card Wadah Tabel --- */
+.card {
+    background-color: white;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+/* --- Pengaturan Warna & Gaya Tabel --- */
+.tabel-custom {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+
+/* Warna Header Tabel (Bagian Judul Kolom) */
+.tabel-custom thead tr {
+    background-color: #1e3a8a; /* UBAH WARNA HEADER TABEL DI SINI (Contoh: #1e3a8a = Biru Tua) */
+    color: white;
+    text-align: left;
+}
+
+.tabel-custom th, 
+.tabel-custom td {
+    padding: 12px 15px;
+}
+
+/* Garis antar baris tabel */
+.tabel-custom tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Warna selang-seling baris tabel (Zebra Striping) */
+.tabel-custom tbody tr:nth-of-type(even) {
+    background-color: #f8fafc; /* UBAH WARNA BARIS GENAP DI SINI */
+}
+
+/* Efek Sorot saat kursor melewati baris tabel (Hover) */
+.tabel-custom tbody tr:hover {
+    background-color: #f1f5f9; /* UBAH WARNA SOROT MOUSE DI SINI */
+}
+
+/* --- Pengaturan Badge Status Alat --- */
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.badge-tersedia {
+    background-color: #dcfce7; /* Latar Hijau Muda */
+    color: #166534;            /* Teks Hijau Tua */
+}
+
+.badge-dipinjam {
+    background-color: #fef3c7; /* Latar Kuning Muda */
+    color: #92400e;            /* Teks Cokelat/Kuning Tua */
+}
+
+.badge-perbaikan {
+    background-color: #fee2e2; /* Latar Merah Muda */
+    color: #991b1b;            /* Teks Merah Tua */
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #64748b;
+    font-size: 0.85rem;
+}

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabFisika - Sistem Administrasi Digital</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>LabFisika</h1>
+            <p>Sistem Administrasi Laboratorium Fisika Berbasis Web</p>
+        </header>
+
+        <main>
+            <!-- DASHBOARD RINGKASAN STATISTIK -->
+            <section style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;">
+                <div class="card" style="margin-top:0; text-align:center; border-left: 5px solid #1e3a8a;">
+                    <h3 style="margin:0; color:#64748b; font-size:0.9rem;">Total Jenis Alat</h3>
+                    <h1 id="stat-total-alat" style="margin:10px 0 0 0; color:#1e3a8a; font-size:2rem;">0</h1>
+                </div>
+                <div class="card" style="margin-top:0; text-align:center; border-left: 5px solid #d97706;">
+                    <h3 style="margin:0; color:#64748b; font-size:0.9rem;">Sedang Dipinjam</h3>
+                    <h1 id="stat-dipinjam" style="margin:10px 0 0 0; color:#d97706; font-size:2rem;">0</h1>
+                </div>
+                <div class="card" style="margin-top:0; text-align:center; border-left: 5px solid #dc2626;">
+                    <h3 style="margin:0; color:#64748b; font-size:0.9rem;">Dalam Perbaikan</h3>
+                    <h1 id="stat-perbaikan" style="margin:10px 0 0 0; color:#dc2626; font-size:2rem;">0</h1>
+                </div>
+            </section>
+
+            <!-- Form Tambah Alat Baru -->
+            <section class="card">
+                <h2>+ Tambah Alat Lab Baru</h2>
+                <form id="form-tambah-alat" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div>
+                        <label>Kode Alat:</label><br>
+                        <input type="text" id="input-kode" placeholder="Contoh: FIS-MEK-001" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Nama Alat:</label><br>
+                        <input type="text" id="input-nama" placeholder="Contoh: Dinamika Cart" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Kategori:</label><br>
+                        <select id="input-kategori" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="Mekanika">Mekanika</option>
+                            <option value="Optika">Optika</option>
+                            <option value="Listrik & Magnet">Listrik & Magnet</option>
+                            <option value="Gelombang">Gelombang</option>
+                            <option value="Fisika Modern">Fisika Modern</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Jumlah Unit:</label><br>
+                        <input type="number" id="input-jumlah" placeholder="Contoh: 10" required min="1" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Lokasi Penyimpanan:</label><br>
+                        <input type="text" id="input-lokasi" placeholder="Contoh: Rak Mekanika 1" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Status Alat:</label><br>
+                        <select id="input-status" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="Tersedia">Tersedia</option>
+                            <option value="Dipinjam">Dipinjam</option>
+                            <option value="Perbaikan">Perbaikan</option>
+                        </select>
+                    </div>
+                    <div style="grid-column: span 2; text-align: right; margin-top: 10px;">
+                        <button type="submit" id="btn-simpan" style="background-color: #1e3a8a; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Simpan Alat</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Tabel Inventaris Alat -->
+            <section class="card">
+                <h2>Master Inventaris Alat Lab</h2>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; margin-top: 15px;">
+                    <input type="text" id="input-cari" placeholder="🔍 Cari nama atau kode alat..." style="flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                    <select id="filter-kategori" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                        <option value="">Semua Kategori</option>
+                        <option value="Mekanika">Mekanika</option>
+                        <option value="Optika">Optika</option>
+                        <option value="Listrik & Magnet">Listrik & Magnet</option>
+                        <option value="Gelombang">Gelombang</option>
+                        <option value="Fisika Modern">Fisika Modern</option>
+                    </select>
+                </div>
+
+                <div id="loading">Sedang mengambil data dari database Supabase...</div>
+                
+                <table id="tabel-inventaris" class="tabel-custom" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Nama Alat</th>
+                            <th>Kategori</th>
+                            <th>Jumlah</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-alat">
+                        <!-- Data alat otomatis masuk -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- MODUL PEMINJAMAN ALAT -->
+            <section class="card">
+                <h2>📋 Form Pengajuan Peminjaman Alat</h2>
+                <form id="form-pinjam-alat" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div>
+                        <label>Nama Peminjam:</label><br>
+                        <input type="text" id="pinjam-nama" placeholder="Contoh: Siti Aisyah" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Peran:</label><br>
+                        <select id="pinjam-peran" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="Siswa">Siswa</option>
+                            <option value="Guru">Guru</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Pilih Kode Alat:</label><br>
+                        <select id="pinjam-kode-alat" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="">-- Pilih Alat --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Jumlah Unit Dipinjam:</label><br>
+                        <input type="number" id="pinjam-jumlah" placeholder="Contoh: 1" required min="1" value="1" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label>Keperluan / Praktikum:</label><br>
+                        <input type="text" id="pinjam-keperluan" placeholder="Contoh: Praktikum Optika Kelas XI" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div style="grid-column: span 2; text-align: right; margin-top: 10px;">
+                        <button type="submit" id="btn-pinjam" style="background-color: #059669; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Ajukan Peminjaman</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TABEL RIWAYAT & PENGEMBALIAN PEMINJAMAN -->
+            <section class="card">
+                <h2>Persetujuan & Pengembalian Alat (Laboran)</h2>
+                <table id="tabel-peminjaman" class="tabel-custom">
+                    <thead>
+                        <tr>
+                            <th>Peminjam</th>
+                            <th>Kode Alat</th>
+                            <th>Jumlah</th>
+                            <th>Tgl Pinjam</th>
+                            <th>Keperluan</th>
+                            <th>Status</th>
+                            <th>Tindakan Laboran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-peminjaman">
+                        <!-- Data peminjaman otomatis masuk -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- MODUL PEMELIHARAAN & PERBAIKAN -->
+            <section class="card">
+                <h2>🛠️ Catat Pemeliharaan / Perbaikan Alat</h2>
+                <form id="form-pemeliharaan" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div>
+                        <label>Pilih Alat:</label><br>
+                        <select id="rawat-kode-alat" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="">-- Pilih Alat --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Jenis Tindakan:</label><br>
+                        <select id="rawat-jenis" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="Perbaikan Kerusakan">Perbaikan Kerusakan</option>
+                            <option value="Pemeliharaan Rutin">Pemeliharaan Rutin / Pembersihan</option>
+                            <option value="Kalibrasi Alat">Kalibrasi Alat</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Nama Petugas / Teknisi:</label><br>
+                        <input type="text" id="rawat-petugas" placeholder="Contoh: Pak Budi (Laboran)" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label>Status Pengerjaan Awal:</label><br>
+                        <select id="rawat-status" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="Proses">Dalam Proses</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label>Rincian Kendala / Tindakan:</label><br>
+                        <input type="text" id="rawat-rincian" placeholder="Contoh: Penggantian kabel probe multimeter yang putus" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div style="grid-column: span 2; text-align: right; margin-top: 10px;">
+                        <button type="submit" id="btn-rawat" style="background-color: #d97706; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Simpan Catatan Pemeliharaan</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- TABEL RIWAYAT PEMELIHARAAN -->
+            <section class="card">
+                <h2>Riwayat Pemeliharaan & Kalibrasi Alat</h2>
+                <table id="tabel-pemeliharaan" class="tabel-custom">
+                    <thead>
+                        <tr>
+                            <th>Tgl Periksa</th>
+                            <th>Kode Alat</th>
+                            <th>Jenis Tindakan</th>
+                            <th>Rincian Kendala</th>
+                            <th>Petugas</th>
+                            <th>Status Pengerjaan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-pemeliharaan">
+                        <!-- Data pemeliharaan otomatis masuk -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- TABEL LOG AKTIVITAS (AUDIT TRAIL) -->
+            <section class="card">
+                <h2>📜 Log Aktivitas Sistem (Audit Trail)</h2>
+                <table id="tabel-log" class="tabel-custom">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Pengguna</th>
+                            <th>Aktivitas</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-log">
+                        <!-- Data log otomatis masuk -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Proyek LabFisika - Pendidikan Fisika</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
